@@ -5,6 +5,7 @@
 axios.get('https://api.github.com/users/VanshikaP')
 .then(response => {
   console.log(response.data);
+  document.querySelector('.cards').append(createCard(response.data));
   })
   .catch(error => {
     console.log('Got error ', error);
@@ -40,37 +41,44 @@ const friendsArray = [
   'Callmich',
   'idongessien'
 ];
-console.log('friends: ', friendsArray);
-friendsArray.forEach(githubHandle =>{
-  axios.get('https://api.github.com/users/' + githubHandle)
-  .then(response => {
-    document.querySelector('.cards').append(createCard(response.data));
-  })
-.catch(error => {
-  console.log('Fetch operation failed, ', error);
-})
-});
+// console.log('friends: ', friendsArray);
 
-let followersArray = [];
+// friendsArray.forEach(githubHandle =>{
+//   axios.get('https://api.github.com/users/' + githubHandle)
+//   .then(response => {
+//     document.querySelector('.cards').append(createCard(response.data));
+//   })
+// .catch(error => {
+//   console.log('Fetch operation failed, ', error);
+// })
+// });
+
+// let followersArray = [];
+// axios.get('https://api.github.com/users/VanshikaP/followers')
+// .then(response => {
+//   response.data.forEach(r => {
+//     followersArray.push(r.login);
+//   })
+// }).catch(error => {
+//   console.log('Failed to fetch followers ' , error);
+// })
+// console.log('Followers: ', followersArray);
+
+
 axios.get('https://api.github.com/users/VanshikaP/followers')
 .then(response => {
-  response.data.forEach(r => {
-    followersArray.push(r.login);
-  })
-}).catch(error => {
-  console.log('Failed to fetch followers ' , error);
+  response.data.forEach(follower => {
+    axios.get('https://api.github.com/users/' + follower.login)
+    .then(response => {
+      document.querySelector('.cards').append(createCard(response.data));
+    })
+  .catch(error => {
+    console.log('Fetch operation failed, ', error);
+  });
+  });
 })
-console.log('Followers: ', followersArray);
-
-followersArray.forEach(githubHandle =>{
-  axios.get('https://api.github.com/users/' + githubHandle)
-  .then(response => {
-    console.log(response.data);
-    document.querySelector('.cards').append(createCard(response.data));
-  })
 .catch(error => {
-  console.log('Fetch operation failed, ', error);
-})
+  console.log('Failed to fetch followers', error);
 });
 
 
@@ -111,11 +119,7 @@ function createCard(person){
   info.classList.add('card-info');
   name.classList.add('name');
   userName.classList.add('username');
-
-  card.append(img, info);
-  info.append(name, userName, location, profile, followers, following, bio);
-  profile.append(address);
-
+  
   img.src = person.avatar_url;
   name.textContent = person.name;
   userName.textContent = person.login;
@@ -126,6 +130,10 @@ function createCard(person){
   followers.textContent = 'Followers: ' + person.followers;
   following.textContent = 'Following: ' + person.following;
   bio.textContent = 'Bio: ' + person.bio;
+
+  profile.append(address);
+  info.append(name, userName, location, profile, followers, following, bio);
+  card.append(img, info);
 
   return card;
 }
